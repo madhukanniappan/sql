@@ -1,0 +1,71 @@
+/*
+====================================================
+ Question:
+ Write a SQL query to list each employee's name and 
+ salary along with the difference between their salary 
+ and the average salary of the entire company, and the 
+ difference between their salary and the average salary 
+ of their department.
+====================================================
+*/
+
+-- 1. Create Employees table
+CREATE TABLE Employees (
+    id INT PRIMARY KEY,
+    name VARCHAR(50),
+    department VARCHAR(20),
+    salary DECIMAL(10,2)
+);
+
+-- 2. Insert sample data
+INSERT INTO Employees (id, name, department, salary) VALUES
+(1, 'Alice', 'HR', 70000),
+(2, 'Bob', 'IT', 90000),
+(3, 'Carol', 'HR', 80000),
+(4, 'Dave', 'IT', 85000),
+(5, 'Eve', 'Sales', 75000);
+
+-- 3. Get company average salary
+SELECT AVG(salary) AS company_avg FROM Employees;
+
+-- 4. Get department-wise average salary
+SELECT department, AVG(salary) AS dept_avg
+FROM Employees
+GROUP BY department;
+
+-- 5. Final query using subqueries in SELECT
+SELECT 
+    e.name,
+    e.salary,
+    e.salary - (SELECT AVG(salary) FROM Employees) AS diff_from_company,
+    e.salary - (SELECT AVG(salary) 
+                FROM Employees e2 
+                WHERE e2.department = e.department) AS diff_from_dept
+FROM Employees e;
+
+ /*
+====================================================
+ Expected Output Table
+====================================================
+
+-- From step 3:
+company_avg =  82750.00
+
+-- From step 4:
+| department | dept_avg |
+|------------|----------|
+| HR         | 75000.00 |
+| IT         | 87500.00 |
+| Sales      | 75000.00 |
+
+-- From step 5:
+| name  | salary  | diff_from_company | diff_from_dept |
+|-------|---------|-------------------|----------------|
+| Alice | 70000   | -12750.00         | -5000.00       |
+| Bob   | 90000   | 7250.00           | 2500.00        |
+| Carol | 80000   | -2750.00          | 5000.00        |
+| Dave  | 85000   | 2250.00           | 0.00           |
+| Eve   | 75000   | -7750.00          | 0.00           |
+
+====================================================
+ */
